@@ -24,11 +24,18 @@ export const useMessageStore = defineStore("MessageStore", () => {
     otherUser.value = messageMock.getOtherUser();
   }
 
-  async function addMessage(message: Message): Promise<any> {
+  async function addMessage(
+    message: Message,
+    isOptimistic = false
+  ): Promise<any> {
     //randomly reject
     const randomNum = Math.floor(Math.random() * 10);
     if (randomNum === 0) {
       return Promise.reject();
+    }
+
+    if (!isOptimistic) {
+      insertMessage(message);
     }
 
     const nextId = messageMock.getNextId();
@@ -58,9 +65,20 @@ export const useMessageStore = defineStore("MessageStore", () => {
     console.warn("addAutoReply when API is ready");
   }
 
+  function insertMessage(message: Message) {
+    const nextId = messageMock.getNextId();
+    message.id = nextId;
+    const newMessage = { ...message, id: nextId };
+    messages.value = [...messages.value, newMessage];
+  }
+
   function removeMessage(index: number) {
     messages.value.splice(index, 1);
     console.warn("removeMessage when API is ready");
+  }
+
+  function removeLastMessage() {
+    messages.value.splice(messages.value.length - 1, 1);
   }
 
   // Add other actions as needed
@@ -70,6 +88,8 @@ export const useMessageStore = defineStore("MessageStore", () => {
     fetchMessages,
     fetchMe,
     addMessage,
+    insertMessage,
     removeMessage,
+    removeLastMessage,
   };
 });

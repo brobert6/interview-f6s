@@ -27,6 +27,7 @@ import MessageCard from "../message/MessageCard.vue";
 import ComposeSection from "../message/ComposeSection.vue";
 import { mapPromiseStatusWithCallbacks } from "../../utils";
 
+const isOptimistic = true;
 const messageStore = useMessageStore();
 const messageContainer = ref(null);
 const convContainer = ref(null);
@@ -51,8 +52,12 @@ const loadConversation = async () => {
 };
 
 const sendReply = async () => {
+  if (isOptimistic) {
+    messageStore.insertMessage(message.value!);
+    scrollToBottom();
+  }
   mapPromiseStatusWithCallbacks(
-    messageStore.addMessage(message.value!),
+    messageStore.addMessage(message.value!, isOptimistic),
     isLoading,
     () => {
       error.value = undefined;
@@ -60,6 +65,9 @@ const sendReply = async () => {
       scrollToBottom();
     },
     () => {
+      if (isOptimistic) {
+        messageStore.removeLastMessage();
+      }
       error.value = "Error sending message";
       message.value!.message = "";
       scrollToBottom();
