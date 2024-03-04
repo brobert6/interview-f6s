@@ -38,10 +38,6 @@ export const useMessageStore = defineStore("MessageStore", () => {
       insertMessage(message);
     }
 
-    const nextId = messageMock.getNextId();
-    message.id = nextId;
-    const newMessage = { ...message, id: nextId };
-    messages.value.push(newMessage);
     console.warn("addMessage when API is ready");
 
     await waitForXSecond(0.5);
